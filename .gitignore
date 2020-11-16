@@ -1,3 +1,6 @@
 # environment things
 env
 .vscode
+
+# data
+data

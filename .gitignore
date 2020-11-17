@@ -4,3 +4,6 @@ env
 
 # data
 data
+
+# python stuff
+__pycache__

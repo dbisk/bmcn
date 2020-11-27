@@ -11,8 +11,7 @@ def main():
   img = utils.load_img("./test_img/cman256.png")
   img = utils.add_noise(img, 20)
 
-  model = bmnn.BMNN()
-  blocks = model.blockmatch(img, (128, 56))
+  blocks = bmnn.blockmatch(img, (128, 56))
   utils.show_blocks_on_image(img, blocks)
   # print("Exiting.")
 

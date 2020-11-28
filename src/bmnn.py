@@ -17,24 +17,29 @@ class Block():
     self.y = y
     self.data = patch
 
-class BMNN(nn.Module):
-  def __init__(self):
-    super().__init__()
-    
-  def forward(self, img):
-    # create the denoised image we will return
-    out = np.zeros(img.shape)
-    # first, blockmatch each section of the image
-    for x in range(0, img.shape[0] - PATCH_SIZE, PATCH_SIZE):
-      for y in range(0, img.shape[1] - PATCH_SIZE, PATCH_SIZE):
-        # find the matching blocks
-        grp = blockmatch(img, (x, y))
-        # throw the group through the network
-        noise = 0 # TODO: replace with layers
-        # subtract the learned noise to create the output
-        out[x:x + PATCH_SIZE, y:y + PATCH_SIZE] = img[x:x + PATCH_SIZE, y:y + PATCH_SIZE] - noise
+def _blocks_to_array(blocks):
+  out = np.zeros((len(blocks), PATCH_SIZE, PATCH_SIZE))
+  for idx, blk in enumerate(blocks):
+    out[idx] = blk.data
+  return out
 
-    return img
+def bmnn(img, model):
+  # create the denoised image we will return
+  out = np.zeros(img.shape)
+  # first, blockmatch each section of the image
+  for x in range(0, img.shape[0] - PATCH_SIZE, PATCH_SIZE):
+    for y in range(0, img.shape[1] - PATCH_SIZE, PATCH_SIZE):
+      # find the matching blocks
+      grp = blockmatch(img, (x, y))
+      # turn the group into a tensor
+      grp = _blocks_to_array(grp)
+      # throw the group through the network
+      with torch.no_grad():
+        out_patch = model(torch.unsqueeze(torch.from_numpy(grp), 0).float())
+      # place that patch back into the output
+      out[x:x + PATCH_SIZE, y:y + PATCH_SIZE] = out_patch[0,0,:,:]
+
+  return out
 
 def blockmatch(img, coords, search_size=SEARCH_SIZE, patch_size=PATCH_SIZE, threshold=THRESHOLD, stride=1, N=MAX_BLOCKS):
   blocks = []
@@ -58,12 +63,14 @@ def blockmatch(img, coords, search_size=SEARCH_SIZE, patch_size=PATCH_SIZE, thre
   # original patch itself
   if (len(blocks) == 0):
     blocks.append(Block(base, patch_x, patch_y))
+
+  # add copies of the original patch until we are at N blocks (TODO: revisit this)
+  while (len(blocks) < N):
+    blocks.append(Block(base, patch_x, patch_y))
   
-  # remove random entries until we are at N blocks (might need to revisit this)
+  # remove random entries until we are at N blocks (TODO: revisit this)
   while (len(blocks) > N):
     blocks.pop(np.random.randint(0, len(blocks)))
 
-  # debug
-  print("Found", len(blocks), "blocks.")
   return blocks
 

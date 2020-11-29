@@ -6,9 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-def add_noise(img, sigma = 0.1):
+def add_noise(img, sigma = 30):
   noise = np.random.normal(0, sigma, img.shape).reshape(img.shape)
-  return np.clip(img + noise, 0, 1) # only for grayscale, 0-1 images
+  return np.clip(img + noise, 0, 255) # only for grayscale, 0-1 images
 
 def load_img(filepath, to_grayscale=False):
   img = Image.open(filepath)

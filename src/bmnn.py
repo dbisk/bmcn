@@ -23,14 +23,14 @@ def blocks_to_array(blocks):
     out[idx] = blk.data
   return out
 
-def bmnn(img, model):
+def bmnn(img, model, stride=1):
   # create the denoised image we will return
   out = np.zeros(img.shape)
   # first, blockmatch each section of the image
-  for x in range(0, img.shape[0] - PATCH_SIZE, PATCH_SIZE):
-    for y in range(0, img.shape[1] - PATCH_SIZE, PATCH_SIZE):
+  for x in range(0, img.shape[0] - PATCH_SIZE + 1, PATCH_SIZE):
+    for y in range(0, img.shape[1] - PATCH_SIZE + 1, PATCH_SIZE):
       # find the matching blocks
-      grp = blockmatch(img, (x, y))
+      grp = blockmatch(img, (x, y), stride=stride)
       # turn the group into a tensor
       grp = blocks_to_array(grp)
       # throw the group through the network

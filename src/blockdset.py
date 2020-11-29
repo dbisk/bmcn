@@ -32,8 +32,8 @@ class BlockDataset(Dataset):
     # blockmatch all the patches of every image
     # TODO: this probably takes a while. Needs to be changed.
     for i, im in enumerate(tqdm(noisy)):
-      for x in range(0, im.shape[0] - bmnn.PATCH_SIZE, bmnn.PATCH_SIZE):
-        for y in range(0, im.shape[1] - bmnn.PATCH_SIZE, bmnn.PATCH_SIZE):
+      for x in range(0, im.shape[0] - bmnn.PATCH_SIZE + 1, bmnn.PATCH_SIZE):
+        for y in range(0, im.shape[1] - bmnn.PATCH_SIZE + 1, bmnn.PATCH_SIZE):
           # get the ground truth
           gt = imgs[i][x:x + bmnn.PATCH_SIZE, y:y + bmnn.PATCH_SIZE]
           # find the matching blocks
@@ -41,8 +41,8 @@ class BlockDataset(Dataset):
           # turn the group into an array
           grp = bmnn.blocks_to_array(grp)
           # add this group to the actual data list
-          self.data.append(grp)
-          self.truths.append(gt)
+          self.data.append(grp / 255.0)
+          self.truths.append(np.expand_dims(gt / 255.0, axis=0))
 
       
   
@@ -61,4 +61,4 @@ class BlockDataset(Dataset):
     # if (self.transform):
     #   truth = self.transform(truth)
     #   noisy = self.transform(noisy)
-    return {'noisy': noisy, 'truth': truth}
+    return {'data': noisy, 'truth': truth}

@@ -1,5 +1,6 @@
 # bsdset.py
 # dataset class to load the Berkeley Segmentation Dataset images
+# TODO: note that this can probably be replaced by torchvision.datasets.ImageFolder
 
 import os.path
 import glob
@@ -16,6 +17,7 @@ class BSDataset(Dataset):
   
   def __getitem__(self, idx):
     # TODO: allow slices instead of forcing just 1 idx at a time
+    # TODO: suppress warning following line outputs
     truth = load_img(self.im_paths[idx], to_grayscale=True)
     if (self.transform):
       truth = self.transform(truth)

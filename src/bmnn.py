@@ -9,7 +9,7 @@ import torch.optim as optim
 PATCH_SIZE = 8
 SEARCH_SIZE = 39
 THRESHOLD = 250,
-MAX_BLOCKS = 32
+MAX_BLOCKS = 8
 
 class Block():
   def __init__(self, patch, x, y):
@@ -17,7 +17,7 @@ class Block():
     self.y = y
     self.data = patch
 
-def _blocks_to_array(blocks):
+def blocks_to_array(blocks):
   out = np.zeros((len(blocks), PATCH_SIZE, PATCH_SIZE))
   for idx, blk in enumerate(blocks):
     out[idx] = blk.data
@@ -32,7 +32,7 @@ def bmnn(img, model):
       # find the matching blocks
       grp = blockmatch(img, (x, y))
       # turn the group into a tensor
-      grp = _blocks_to_array(grp)
+      grp = blocks_to_array(grp)
       # throw the group through the network
       with torch.no_grad():
         out_patch = model(torch.unsqueeze(torch.from_numpy(grp), 0).float())

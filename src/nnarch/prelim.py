@@ -11,6 +11,6 @@ class PrelimNN(nn.Module):
     self.conv = nn.Conv2d(patch_depth, 1, kernel_size=(3, 3), padding= (1, 1))
 
   def forward(self, grps):
-    # grps is expected to be -1x(patch_depth)x8x8
+    # grps is expected to be of shape (-1, patch_depth, 8, 8)
     out = self.conv(grps)
-    return out
+    return out # output should be of shape (-1, 1, 8, 8)

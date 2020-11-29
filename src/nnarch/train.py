@@ -4,6 +4,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from tqdm import tqdm
 
 def train(model, train_dataloader, test_dataloader, epochs=10, lr=0.001):
   # TODO: this function needs to be heavily modified, currently just a skeleton
@@ -21,9 +22,11 @@ def train(model, train_dataloader, test_dataloader, epochs=10, lr=0.001):
 
   # training loop
   for epoch in range(epochs):
-    for i, batch in enumerate(train_dataloader): # TODO: consider wrapping in tqdm
+    for i, batch in enumerate(tqdm(train_dataloader)):
       inputs = batch['data']
       inputs = inputs.to(device)
+      truths = batch['truth']
+      truths = truths.to(device)
 
       # zero the parameter gradients
       optimizer.zero_grad()

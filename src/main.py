@@ -6,12 +6,14 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
 import utils
 import bmnn
 from bsdset import BSDataset
+from blockdset import BlockDataset
 import nnarch.prelim
 
 def main():
@@ -40,24 +42,31 @@ def main():
   # plt.show()
 
   # actual code
-  trainset = BSDataset(root_dir=str(Path('../data/train')))
-  valset = BSDataset(root_dir=str(Path('../data/val')))
-  trainloader = DataLoader(trainset, batch_size=1, shuffle=True)
+  tf = transforms.Compose([transforms.ToTensor()])
+  # trainset = BSDataset(root_dir=str(Path('../data/train')), transform=tf)
+  # valset = BSDataset(root_dir=str(Path('../data/val')), transform=tf)
+  # trainset = BlockDataset(root_dir=str(Path('../data/train')), transform=tf)
+  valset = BlockDataset(root_dir=str(Path('../data/val')), transform=tf)
+  # trainloader = DataLoader(trainset, batch_size=1, shuffle=True)
   valloader = DataLoader(valset, batch_size=1, shuffle=True)
 
   # debug
-  img = next(iter(trainloader))
+  img = next(iter(valloader))
 
-  model = nnarch.prelim.PrelimNN(8, 32)
-  output = bmnn.bmnn(img['data'][0], model)
+  # model = nnarch.prelim.PrelimNN(8, 8)
+  # output = bmnn.bmnn(torch.squeeze(img['data']), model)
 
-  fig, ax = plt.subplots(1, 3)
-  ax[0].imshow(img['data'][0], cmap="gray")
+  print("After transform:")
+  print(img['noisy'])
+  print(img['truth'])
+
+  fig, ax = plt.subplots(1, 2)
+  ax[0].imshow(torch.squeeze(img['noisy'])[0], cmap="gray")
   ax[0].set_title("Noisy Image")
-  ax[1].imshow(img['truth'][0], cmap="gray")
+  ax[1].imshow(torch.squeeze(img['truth']), cmap="gray")
   ax[1].set_title("Ground Truth")
-  ax[2].imshow(output, cmap="gray")
-  ax[2].set_title("BMNN")
+  # ax[2].imshow(output, cmap="gray")
+  # ax[2].set_title("BMNN")
   plt.show()
 
 

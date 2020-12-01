@@ -23,6 +23,12 @@ def blocks_to_array(blocks):
     out[idx] = blk.data
   return out
 
+def get_clean_blocks(img, blocks):
+  out = np.zeros((len(blocks), PATCH_SIZE, PATCH_SIZE))
+  for idx, blk in enumerate(blocks):
+    out[idx] = img[blk.x:blk.x + PATCH_SIZE, blk.y:blk.y + PATCH_SIZE]
+  return out
+
 def bmnn(img, model, stride=1):
   # create the denoised image we will return
   out = np.zeros(img.shape)

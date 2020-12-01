@@ -73,7 +73,7 @@ def main():
 
   # begin training
   model = nnarch.prelim.PrelimNN(8, 8)
-  model = nnarch.train.train(model, trainloader, valloader, epochs=2)
+  model = nnarch.train.train(model, trainloader, valloader, epochs=10, lr=0.01)
   torch.save(model.state_dict(), "./test_model.pth")
   # model.load_state_dict(torch.load("./test_model.pth"))
   model = model.to('cpu')

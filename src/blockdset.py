@@ -34,15 +34,15 @@ class BlockDataset(Dataset):
     for i, im in enumerate(tqdm(noisy)):
       for x in range(0, im.shape[0] - bmnn.PATCH_SIZE + 1, bmnn.PATCH_SIZE):
         for y in range(0, im.shape[1] - bmnn.PATCH_SIZE + 1, bmnn.PATCH_SIZE):
-          # get the ground truth
-          gt = imgs[i][x:x + bmnn.PATCH_SIZE, y:y + bmnn.PATCH_SIZE]
           # find the matching blocks
-          grp = bmnn.blockmatch(im, (x,y), stride=8)
-          # turn the group into an array
+          grp = bmnn.blockmatch(im, (x,y), stride=2)
+          # find the ground truths
+          gts = bmnn.get_clean_blocks(imgs[i], grp)
+          # turn the noisy group into an array
           grp = bmnn.blocks_to_array(grp)
           # add this group to the actual data list
           self.data.append(grp / 255.0)
-          self.truths.append(np.expand_dims(gt / 255.0, axis=0))
+          self.truths.append(gts / 255.0)
 
       
   

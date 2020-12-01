@@ -12,8 +12,9 @@ from torchvision import transforms
 
 import utils
 import bmnn
-from bsdset import BSDataset
-from blockdset import BlockDataset
+# from bsdset import BSDataset
+# from blockdset import BlockDataset
+from stackedset import StackedDataset
 import nnarch.prelim
 import nnarch.train
 
@@ -46,34 +47,32 @@ def main():
   tf = transforms.Compose([transforms.ToTensor()])
   # trainset = BSDataset(root_dir=str(Path('../data/train')), transform=tf)
   # valset = BSDataset(root_dir=str(Path('../data/val')), transform=tf)
-  trainset = BlockDataset(root_dir=str(Path('../data/tiny_train')), transform=tf)
-  valset = BlockDataset(root_dir=str(Path('../data/tiny_val')), transform=tf)
+  trainset = StackedDataset(root_dir=str(Path('../data/train')), transform=tf)
+  # valset = StackedDataset(root_dir=str(Path('../data/tiny_val')), transform=tf)
   trainloader = DataLoader(trainset, batch_size=1, shuffle=True)
-  valloader = DataLoader(valset, batch_size=1, shuffle=True)
+  # valloader = DataLoader(valset, batch_size=1, shuffle=True)
 
   # debug
   # img = next(iter(valloader))
 
   # model = nnarch.prelim.PrelimNN(8, 8)
   # output = bmnn.bmnn(torch.squeeze(img['data']), model)
+  # print(img['data'].shape)
 
-  # print("After transform:")
-  # print(img['data'])
-  # print(img['truth'])
-
-  # fig, ax = plt.subplots(1, 2)
+  # fig, ax = plt.subplots(1, 3)
   # ax[0].imshow(torch.squeeze(img['data'])[0], cmap="gray")
   # ax[0].set_title("Noisy Image")
-  # ax[1].imshow(torch.squeeze(img['truth']), cmap="gray")
-  # ax[1].set_title("Ground Truth")
-  # # ax[2].imshow(output, cmap="gray")
-  # # ax[2].set_title("BMNN")
+  # ax[1].imshow(torch.squeeze(img['data'])[4], cmap="gray")
+  # ax[1].set_title("Example channel 4")
+  # ax[2].imshow(torch.squeeze(img['truth']), cmap="gray")
+  # ax[2].set_title("Ground Truth")
   # plt.show()
 
 
   # begin training
-  model = nnarch.prelim.PrelimNN(8, 8)
-  model = nnarch.train.train(model, trainloader, valloader, epochs=10, lr=0.01)
+  model = nnarch.prelim.PrelimNN(8, 6)
+  model.load_state_dict(torch.load("./test_model.pth"))
+  model = nnarch.train.train(model, trainloader, None, epochs=100)
   torch.save(model.state_dict(), "./test_model.pth")
   # model.load_state_dict(torch.load("./test_model.pth"))
   model = model.to('cpu')
@@ -87,7 +86,7 @@ def main():
   ax[0].imshow(img, cmap="gray")
   ax[0].set_title("Noisy Image")
   ax[1].imshow(denoised, cmap="gray")
-  ax[1].set_title("Ground Truth")
+  ax[1].set_title("Denoised")
   plt.show()
 
   # evaluate performance on test set

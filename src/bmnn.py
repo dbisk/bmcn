@@ -8,8 +8,8 @@ import torch.optim as optim
 # some parameters
 PATCH_SIZE = 8
 SEARCH_SIZE = 39
-THRESHOLD = 250,
-MAX_BLOCKS = 8
+THRESHOLD = 350,
+MAX_BLOCKS = 5
 
 class Block():
   def __init__(self, patch, x, y):
@@ -31,21 +31,23 @@ def get_clean_blocks(img, blocks):
 
 def bmnn(img, model, stride=1):
   # create the denoised image we will return
-  out = np.zeros(img.shape)
+  full_img = np.zeros((MAX_BLOCKS + 1, img.shape[0], img.shape[1]), dtype=img.dtype)
+  full_img[0] = img
   # first, blockmatch each section of the image
   for x in range(0, img.shape[0] - PATCH_SIZE + 1, PATCH_SIZE):
     for y in range(0, img.shape[1] - PATCH_SIZE + 1, PATCH_SIZE):
       # find the matching blocks
       grp = blockmatch(img, (x, y), stride=stride)
-      # turn the group into a tensor
+      # turn the group into an array
       grp = blocks_to_array(grp)
-      # throw the group through the network
-      with torch.no_grad():
-        out_patch = model(torch.unsqueeze(torch.from_numpy(grp), 0).float())
-      # place that patch back into the output
-      out[x:x + PATCH_SIZE, y:y + PATCH_SIZE] = out_patch[0,0,:,:]
+      # place that group into the stack below the area
+      full_img[1:, x:x + PATCH_SIZE, y:y + PATCH_SIZE] = grp
 
-  return out
+  # throw the stacked image through the network
+  full_img = torch.Tensor(full_img / 255.0)
+  with torch.no_grad():
+    out = model(torch.unsqueeze(full_img, 0))
+  return torch.squeeze(out)
 
 def blockmatch(img, coords, search_size=SEARCH_SIZE, patch_size=PATCH_SIZE, threshold=THRESHOLD, stride=1, N=MAX_BLOCKS):
   blocks = []

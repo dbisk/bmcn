@@ -15,8 +15,8 @@ def train(model, train_dataloader, test_dataloader, epochs=10, lr=0.001):
 
   # optimizer and loss function
   criterion = nn.BCEWithLogitsLoss()
-  # optimizer = optim.Adam([p for p in model.parameters() if p.requires_grad], lr=lr)
-  optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
+  optimizer = optim.Adam([p for p in model.parameters() if p.requires_grad], lr=lr)
+  # optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
   scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)
 
   # training loop

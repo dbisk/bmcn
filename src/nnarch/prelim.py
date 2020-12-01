@@ -11,7 +11,7 @@ class PrelimNN(nn.Module):
     self.conv1 = nn.Conv2d(patch_depth, 64, kernel_size=(3, 3), padding=(1, 1))
     self.conv2 = nn.Conv2d(64, 64, kernel_size=(3, 3), padding=(1, 1))
     self.conv3 = nn.Conv2d(64, 32, kernel_size=(3, 3), padding=(1, 1))
-    self.conv4 = nn.Conv2d(32, patch_depth, kernel_size=(3, 3), padding=(1, 1))
+    self.conv4 = nn.Conv2d(32, 1, kernel_size=(3, 3), padding=(1, 1))
 
     self.relu = nn.ReLU(inplace=True)
     self.norm32 = nn.BatchNorm2d(32)

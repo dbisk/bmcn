@@ -25,7 +25,8 @@ class StackedDataset(Dataset):
       im = np.asarray(Image.open(p).convert(mode="L"), dtype='float64')
       imgs.append(im)
       # add noise
-      noise = np.random.normal(0, sigma, im.shape).reshape(im.shape)
+      n_sigma = np.random.randint(5, 100) if sigma is None else sigma
+      noise = np.random.normal(0, n_sigma, im.shape).reshape(im.shape)
       noisy.append(np.clip(im + noise, 0, 255))
     
     self.data = []

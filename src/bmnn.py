@@ -47,7 +47,7 @@ def bmnn(img, model, stride=1):
   full_img = torch.Tensor(full_img / 255.0)
   with torch.no_grad():
     out = model(torch.unsqueeze(full_img, 0))
-  return torch.squeeze(out)
+  return torch.squeeze(out).numpy()
 
 def blockmatch(img, coords, search_size=SEARCH_SIZE, patch_size=PATCH_SIZE, threshold=THRESHOLD, stride=1, N=MAX_BLOCKS):
   blocks = []

@@ -5,6 +5,26 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import torch
+
+def psnr_tensor(original, noisy):
+  mse = torch.mean(torch.square(original - noisy))
+  if (mse < 1e-3):
+    return float("inf")
+  return 20 * torch.log10(1.0 / torch.sqrt(mse))
+
+def psnr(original, noisy):
+  mse = np.mean(np.square(original - noisy))
+  if (mse < 1e-3):
+    # PSNR blows up to infinity
+    return float("inf")
+  max_pixel = np.max(original)
+  if (max_pixel > 1):
+    max_pixel = 255.0
+  else:
+    max_pixel = 1.0
+  
+  return 20 * np.log10(max_pixel / np.sqrt(mse))
 
 def add_noise(img, sigma = 30):
   noise = np.random.normal(0, sigma, img.shape).reshape(img.shape)

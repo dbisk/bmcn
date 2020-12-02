@@ -15,8 +15,9 @@ import bmnn
 # from bsdset import BSDataset
 # from blockdset import BlockDataset
 from stackedset import StackedDataset
-import nnarch.prelim
+# import nnarch.prelim
 import nnarch.train
+import nnarch.bmcnn
 
 def main():
   # TODO: use argparse to make this way easier to use (low priority)
@@ -45,12 +46,10 @@ def main():
 
   # actual code
   tf = transforms.Compose([transforms.ToTensor()])
-  # trainset = BSDataset(root_dir=str(Path('../data/train')), transform=tf)
-  # valset = BSDataset(root_dir=str(Path('../data/val')), transform=tf)
   trainset = StackedDataset(root_dir=str(Path('../data/train')), transform=tf)
-  # valset = StackedDataset(root_dir=str(Path('../data/tiny_val')), transform=tf)
+  valset = StackedDataset(root_dir=str(Path('../data/val')), transform=tf)
   trainloader = DataLoader(trainset, batch_size=1, shuffle=True)
-  # valloader = DataLoader(valset, batch_size=1, shuffle=True)
+  valloader = DataLoader(valset, batch_size=1, shuffle=True)
 
   # debug
   # img = next(iter(valloader))
@@ -70,23 +69,26 @@ def main():
 
 
   # begin training
-  model = nnarch.prelim.PrelimNN(8, 6)
-  model.load_state_dict(torch.load("./test_model.pth"))
-  model = nnarch.train.train(model, trainloader, None, epochs=100)
-  torch.save(model.state_dict(), "./test_model.pth")
+  # model = nnarch.prelim.PrelimNN(8, 6)
+  model = nnarch.bmcnn.BMCNN(6)
   # model.load_state_dict(torch.load("./test_model.pth"))
+  model = nnarch.train.train(model, trainloader, valloader, epochs=55)
+  torch.save(model.state_dict(), "./test_model.pth")
   model = model.to('cpu')
 
   # # TODO: temporarily just show an example full image
-  img = utils.load_img("./test_img/cman256.png")
-  img = utils.add_noise(img, 30)
+  img_true = utils.load_img("./test_img/house256.png")
+  img = utils.add_noise(img_true, 30)
   model.eval()
   denoised = bmnn.bmnn(img, model, stride=2)
-  fig, ax = plt.subplots(1, 2)
-  ax[0].imshow(img, cmap="gray")
-  ax[0].set_title("Noisy Image")
-  ax[1].imshow(denoised, cmap="gray")
-  ax[1].set_title("Denoised")
+  print("PSNR:", utils.psnr(img_true / 255.0, denoised))
+  fig, ax = plt.subplots(1, 3)
+  ax[0].imshow(img_true, cmap='gray')
+  ax[0].set_title("Clean Image")
+  ax[1].imshow(img, cmap="gray")
+  ax[1].set_title("Noisy Image")
+  ax[2].imshow(denoised, cmap="gray")
+  ax[2].set_title("Denoised")
   plt.show()
 
   # evaluate performance on test set

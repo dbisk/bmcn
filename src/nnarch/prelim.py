@@ -26,4 +26,4 @@ class PrelimNN(nn.Module):
     out = self.conv3(out)
     out = self.relu(self.norm32(out))
     out = self.conv4(out)
-    return out # output should be of shape (-1, patch_depth, patch_size, patch_size)
+    return out # output should be of shape (-1, 1, patch_size, patch_size)

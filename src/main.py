@@ -46,8 +46,8 @@ def main():
 
   # actual code
   tf = transforms.Compose([transforms.ToTensor()])
-  trainset = StackedDataset(root_dir=str(Path('../data/train')), transform=tf)
-  valset = StackedDataset(root_dir=str(Path('../data/val')), transform=tf)
+  trainset = StackedDataset(root_dir=str(Path('../data/train')), sigma=None, transform=tf)
+  valset = StackedDataset(root_dir=str(Path('../data/val')), sigma=None, transform=tf)
   trainloader = DataLoader(trainset, batch_size=1, shuffle=True)
   valloader = DataLoader(valset, batch_size=1, shuffle=True)
 
@@ -77,7 +77,7 @@ def main():
   model = model.to('cpu')
 
   # # TODO: temporarily just show an example full image
-  img_true = utils.load_img("./test_img/house256.png")
+  img_true = utils.load_img("./test_img/peppers256.png")
   img = utils.add_noise(img_true, 30)
   model.eval()
   denoised = bmnn.bmnn(img, model, stride=2)

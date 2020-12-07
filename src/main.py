@@ -70,7 +70,7 @@ def main():
 
   # begin training
   # model = nnarch.prelim.PrelimNN(8, 6)
-  model = nnarch.bmcnn.BMCNN(6)
+  model = nnarch.bmcnn.BMCNN(bmnn.MAX_BLOCKS + 1, filter_size=32)
   # model.load_state_dict(torch.load("./test_model.pth"))
   model = nnarch.train.train(model, trainloader, valloader, epochs=55)
   torch.save(model.state_dict(), "./test_model.pth")

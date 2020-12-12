@@ -46,8 +46,8 @@ def main():
 
   # actual code
   tf = transforms.Compose([transforms.ToTensor()])
-  trainset = StackedDataset(root_dir=str(Path('../data/train')), sigma=None, transform=tf)
-  valset = StackedDataset(root_dir=str(Path('../data/val')), sigma=None, transform=tf)
+  trainset = StackedDataset(root_dir=str(Path('../data/train')), patch_depth=bmnn.MAX_BLOCKS, sigma=None, transform=tf)
+  valset = StackedDataset(root_dir=str(Path('../data/val')), patch_depth=bmnn.MAX_BLOCKS, sigma=None, transform=tf)
   trainloader = DataLoader(trainset, batch_size=1, shuffle=True)
   valloader = DataLoader(valset, batch_size=1, shuffle=True)
 
@@ -69,11 +69,11 @@ def main():
 
 
   # begin training
-  # model = nnarch.prelim.PrelimNN(8, 6)
   model = nnarch.bmcnn.BMCNN(bmnn.MAX_BLOCKS + 1, filter_size=32)
-  # model.load_state_dict(torch.load("./test_model.pth"))
-  model = nnarch.train.train(model, trainloader, valloader, epochs=55)
-  torch.save(model.state_dict(), "./test_model.pth")
+  # uncomment the following lines based on what you want to do
+  model.load_state_dict(torch.load("./test_model.pth"))
+  # model = nnarch.train.train(model, trainloader, valloader, epochs=55)
+  # torch.save(model.state_dict(), "./test_model.pth")
   model = model.to('cpu')
 
   # # TODO: temporarily just show an example full image

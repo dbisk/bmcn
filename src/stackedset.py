@@ -34,6 +34,8 @@ class StackedDataset(Dataset):
     
     # blockmatch all the patches of every image
     # TODO: this takes a while, probably needs to be changed
+    total_blks = [0] # debug
+    total_tries = 0 # debug
     for i, im in enumerate(tqdm(noisy)):
       # create the data image
       full_img = np.zeros((patch_depth + 1, im.shape[0], im.shape[1]), dtype=im.dtype)
@@ -41,7 +43,8 @@ class StackedDataset(Dataset):
       for x in range(0, im.shape[0] - bmnn.PATCH_SIZE + 1, bmnn.PATCH_SIZE):
         for y in range(0, im.shape[1] - bmnn.PATCH_SIZE + 1, bmnn.PATCH_SIZE):
           # find the matching blocks
-          grp = bmnn.blockmatch(im, (x,y), stride=2)
+          grp = bmnn.blockmatch(im, (x,y), stride=2, stats=total_blks)
+          total_tries += 1 #debug
           # turn the noisy group into an array
           grp = bmnn.blocks_to_array(grp)
           # place that group into the stack below the area
@@ -50,6 +53,9 @@ class StackedDataset(Dataset):
       # append this full image to the data array
       self.data.append(full_img / 255.0)
       self.truths.append(np.expand_dims(imgs[i], 0) / 255.0)
+    
+    # debug
+    print("Average found blocks:", total_blks[0] * 1.0/total_tries)
 
   def __len__(self):
     return len(self.data)
